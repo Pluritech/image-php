@@ -19,6 +19,7 @@ class PictureConfiguration
     private $square;
     private $square_width;
     private $square_height;
+    private $automatic_resize;
     private $url;
     private $dir;
 
@@ -41,6 +42,7 @@ class PictureConfiguration
         $this->setSquareHeight($conf_picture['square_height']); 
         $this->setUrl($conf_picture['url']);  
         $this->setDir($conf_picture['dir']); 
+        $this->setAutomaticResize($conf_picture['automatic_resize']); 
     }
 
     
@@ -63,6 +65,12 @@ class PictureConfiguration
      */
     public function setThumb($thumb){
         $this->thumb = $thumb;
+    }
+    /**
+     * Set automatic_resize configuration
+     */
+    public function setAutomaticResize($automatic_resize){
+        $this->automatic_resize = $automatic_resize;
     }
     
     /**
@@ -147,6 +155,13 @@ class PictureConfiguration
      */
     public function getThumb(){
         return $this->thumb;
+    }
+    
+    /**
+     * Get automatic_resize configuration
+     */
+    public function getAutomaticResize(){
+        return $this->automatic_resize;
     }
     
     /**
