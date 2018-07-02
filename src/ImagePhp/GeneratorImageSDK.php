@@ -75,7 +75,7 @@ class GeneratorImageSDK{
         }
 
         if(!$height_destino){
-            $height_destino  = $width_destino   =  $this->getPictureConfiguration()->getHeight();
+            $height_destino  =  $this->getPictureConfiguration()->getHeight();
         }
         $prop_origem     = $width_origem / $height_origem;
         $prop_destino    = $width_destino / $height_destino;        
