@@ -22,6 +22,7 @@ class GeneratorImageSDK{
         'image/gif'  => 'gif'
 
     );
+    private $image_default_name = null;
 
     /**
      * Construct
@@ -32,6 +33,7 @@ class GeneratorImageSDK{
             $this->water_mark = $water_mark_path;//caminho onde se encontra a marca d'agua dentro de uploads
         }        
         $this->setPictureConfiguration($conf_picture);
+        $this->image_default_name = $conf_picture['image_default_name'];
     }
 
 
@@ -257,7 +259,8 @@ class GeneratorImageSDK{
         }
         
         
-        $this->createDirectory();        
+        $this->createDirectory($this->getPictureConfiguration()->getDir());        
+        $this->createDirectory($this->getPictureConfiguration()->getDirImageDefault());        
 
         //Verifica se usa marca d'agua 
         if(!empty($this->getPictureConfiguration()->getWaterMark())){
@@ -278,13 +281,29 @@ class GeneratorImageSDK{
 
         return $this->getPictureConfiguration()->getUrl().$image;
     }
+
+    /**
+     * Recupera uma imagem - Base url é unica para cada configuração
+     */    
+    public function getImageDefault($image){
+
+        return $this->getPictureConfiguration()->getUrlImageDefault().$image;
+    }
+
+    /**
+     * Recupera uma imagem - Base url é unica para cada configuração
+     */    
+    public function getImageDefaultName(){
+
+        return $this->image_default_name;
+    }
     /**
      * Cria um diretório se ele não existir
      */    
-    public function createDirectory(){
+    public function createDirectory($directory){
 
-       if(!file_exists($this->getPictureConfiguration()->getDir())){
-            mkdir($this->getPictureConfiguration()->getDir(), 0777);
+       if(!file_exists($directory)){
+            mkdir($directory, 0777);
         }
     }
 

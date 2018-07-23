@@ -22,6 +22,8 @@ class PictureConfiguration
     private $automatic_resize;
     private $url;
     private $dir;
+    private $dir_image_default;
+    private $url_image_default;
 
 
     /**
@@ -42,6 +44,8 @@ class PictureConfiguration
         $this->setSquareHeight($conf_picture['square_height']); 
         $this->setUrl($conf_picture['url']);  
         $this->setDir($conf_picture['dir']); 
+        $this->setDirImageDefault($conf_picture['dir_image_default']); 
+        $this->setUrlImageDefault($conf_picture['url_image_default']); 
         $this->setAutomaticResize($conf_picture['automatic_resize']); 
     }
 
@@ -137,6 +141,19 @@ class PictureConfiguration
     }
 
     /**
+     * Set dir_image_default configuration
+     */
+    public function setDirImageDefault($dir_image_default){
+        $this->dir_image_default = $dir_image_default;
+    }
+    /**
+     * Set url_image_default configuration
+     */
+    public function setUrlImageDefault($url_image_default){
+        $this->url_image_default = $url_image_default;
+    }
+
+    /**
      * Get width configuration
      */
     public function getWidth(){
@@ -221,10 +238,23 @@ class PictureConfiguration
     }
     
     /**
+     * Get urlImageDefault configuration
+     */
+    public function getUrlImageDefault(){
+        return $this->url_image_default;
+    }
+    
+    /**
      * Get url configuration
      */
     public function getDir(){
         return $this->dir;
     }
 
+    /**
+     * Set dir_image_default configuration
+     */
+    public function getDirImageDefault(){
+        return $this->dir_image_default;
+    }
 }
