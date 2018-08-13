@@ -260,7 +260,10 @@ class GeneratorImageSDK{
         
         
         $this->createDirectory($this->getPictureConfiguration()->getDir());        
-        $this->createDirectory($this->getPictureConfiguration()->getDirImageDefault());        
+
+        if($default_dir = $this->getPictureConfiguration()->getDirImageDefault()){
+            $this->createDirectory($default_dir);
+        }
 
         //Verifica se usa marca d'agua 
         if(!empty($this->getPictureConfiguration()->getWaterMark())){
@@ -269,7 +272,6 @@ class GeneratorImageSDK{
 
         $image_creator = new ImageCreator($mime_type);
         $image_creator->createImageByPhoto($photo, $this->getPictureConfiguration()->getDir().$image_name);
-
     }
 
 
