@@ -24,6 +24,7 @@ class PictureConfiguration
     private $dir;
     private $dir_image_default;
     private $url_image_default;
+    private $has_sub_folder;
 
 
     /**
@@ -46,7 +47,8 @@ class PictureConfiguration
         $this->setDir($conf_picture['dir']); 
         $this->setDirImageDefault($conf_picture['dir_image_default']); 
         $this->setUrlImageDefault($conf_picture['url_image_default']); 
-        $this->setAutomaticResize($conf_picture['automatic_resize']); 
+        $this->setAutomaticResize($conf_picture['automatic_resize']);
+        $this->setHasSubFolder(isset($conf_picture['has_sub_folder']) ? $conf_picture['has_sub_folder'] : false);  
     }
 
     
@@ -70,6 +72,7 @@ class PictureConfiguration
     public function setThumb($thumb){
         $this->thumb = $thumb;
     }
+    
     /**
      * Set automatic_resize configuration
      */
@@ -151,6 +154,13 @@ class PictureConfiguration
      */
     public function setUrlImageDefault($url_image_default){
         $this->url_image_default = $url_image_default;
+    }
+
+    /**
+     * Set has_sub_folder configuration
+     */
+    public function setHasSubFolder($has_sub_folder){
+        $this->has_sub_folder = $has_sub_folder;
     }
 
     /**
@@ -256,5 +266,12 @@ class PictureConfiguration
      */
     public function getDirImageDefault(){
         return $this->dir_image_default;
+    }
+
+    /**
+     * Get has_sub_folder configuration
+     */
+    public function getHasSubFolder(){
+        return $this->has_sub_folder;
     }
 }

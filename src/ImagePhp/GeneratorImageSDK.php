@@ -219,10 +219,9 @@ class GeneratorImageSDK{
     /**
      * Cria uma imagem a partir das configurações pre-selecionadas.
      */ 
-    public function createImages(){
+    public function createImages($sub_folder_name = false){
         
         $image_name = null;
-        
         if(empty($this->getPicture()->getPhoto())){
 
             throw new ImageNotGenerate();
@@ -233,34 +232,41 @@ class GeneratorImageSDK{
         
         $image_name = $this->generateUniqueName($mime_type);
    
-        $this->savePicture($mime_type, $photo, $image_name);
+        $this->savePicture($mime_type, $photo, $image_name, $sub_folder_name);
 
         if(!empty($this->getPictureConfiguration()->getThumb())){
-            $this->createThumb($image_name, $mime_type);
+            $this->createThumb($image_name, $mime_type, $sub_folder_name);
         }
-
         if(!empty($this->getPictureConfiguration()->getSquare())){
-            $this->createSquare($image_name, $mime_type);
+            $this->createSquare($image_name, $mime_type, $sub_folder_name);
         }            
     
         return array(
             'picture_name' => $image_name
         );
 
-    } 
+    }
+
     /**
      * realiza o upload das fotos
      */ 
-    public function savePicture($mime_type, $photo, $image_name){
+    public function savePicture($mime_type, $photo, $image_name, $sub_folder_name = false){
         
         if(empty($photo)){
 
             throw new ImageNotGenerate();
         }
         
-        
-        $this->createDirectory($this->getPictureConfiguration()->getDir());        
-        $this->createDirectory($this->getPictureConfiguration()->getDirImageDefault());        
+        $this->createDirectory($this->getPictureConfiguration()->getDir());
+        if($has_sub_folder = $this->getPictureConfiguration()->getHasSubFolder()){
+            if(!empty($sub_folder_name)){
+                $this->createDirectory($this->getPictureConfiguration()->getDir().$sub_folder_name."/");
+            }
+        }        
+
+        if($default_dir = $this->getPictureConfiguration()->getDirImageDefault()){
+            $this->createDirectory($default_dir);
+        }
 
         //Verifica se usa marca d'agua 
         if(!empty($this->getPictureConfiguration()->getWaterMark())){
@@ -268,11 +274,25 @@ class GeneratorImageSDK{
         }
 
         $image_creator = new ImageCreator($mime_type);
-        $image_creator->createImageByPhoto($photo, $this->getPictureConfiguration()->getDir().$image_name);
-
+        if($has_sub_folder && $sub_folder_name){
+            $image_creator->createImageByPhoto($photo, $this->getPictureConfiguration()->getDir().$sub_folder_name."/".$image_name);
+        }else{
+            $image_creator->createImageByPhoto($photo, $this->getPictureConfiguration()->getDir().$image_name);
+        }
     }
 
+    /**
+     * Recupera uma imagem - Base url é unica para cada configuração
+     */    
+    public function getImage($image, $sub_folder_name = false){
 
+        $has_sub_folder = $this->getPictureConfiguration()->getHasSubFolder();
+        if($has_sub_folder && $sub_folder_name){
+            return $this->getPictureConfiguration()->getUrl().$sub_folder_name."/".$image;
+        }else{
+            return $this->getPictureConfiguration()->getUrl().$image;
+        }
+    }
 
     /**
      * Recupera uma imagem - Base url é unica para cada configuração
@@ -354,29 +374,53 @@ class GeneratorImageSDK{
     }
 
     /**
-     * Delete image
+     * Delete all types of image created
      */
-    public function deleteImages($image_name){
+    public function deleteImages($image_name, $sub_folder_name = false){
 
         if($this->getPictureConfiguration()->getThumb()){
             $image_thumb  = $this->getThumb($image_name);
-            $this->deleteImage($image_thumb);
+            $this->deleteImage($image_thumb, $sub_folder_name);
         }
         if($this->getPictureConfiguration()->getSquare()){
             $image_square  = $this->getSquare($image_name);
-            $this->deleteImage($image_square);
+            $this->deleteImage($image_square, $sub_folder_name);
         }
-        $this->deleteImage($image_name);
+        $this->deleteImage($image_name, $sub_folder_name);
     }
 
     /**
      * Delete image
      */
-    public function deleteImage($image_name){
+    public function deleteImage($image_name, $sub_folder_name = false){
 
+        if($sub_folder_name){            
+            $path_picture = $this->getPictureConfiguration()->getDir().$sub_folder_name."/".$image_name;
+            @unlink($path_picture);
+        }else{
+            $path_picture = $this->getPictureConfiguration()->getDir().$image_name;
+            @unlink($path_picture);
+        }
+            
+    }
 
-        $path_picture = $this->getPictureConfiguration()->getDir().$image_name;
-        @unlink($path_picture);
+    /**
+     * Delete image - por enquanto deleta apenas um nível de pastas - se houver subpastas dentro dessa pasta ela não será deletada, mas como esse ainda não é o comportamento da biblioteca, isso está ok
+     */
+    public function deleteFolder($folder_name){
+
+        $path = $this->getPictureConfiguration()->getDir().$folder_name;
+        $items = scandir($path);
+        foreach ($items as $item) {
+            if ($item === '.' || $item === '..') {
+                continue;
+            }
+            $to_delete = $path ."/". $item;
+            if (is_file($to_delete)) {
+                unlink($to_delete);
+            }
+        }
+        rmdir($path); 
     }
 
     /**
@@ -391,7 +435,7 @@ class GeneratorImageSDK{
     /**
      * Gera uma thumb para a imagem.
      */
-    public function createThumb($image_name, $mime_type){
+    public function createThumb($image_name, $mime_type, $sub_folder_name = false){
 
 
         if(empty($this->getPicture()->getPhoto())){
@@ -399,26 +443,31 @@ class GeneratorImageSDK{
             throw new ImageNotGenerate();
         }
 
+        $directory = $this->getPictureConfiguration()->getDir().$image_name;
+        if($sub_folder_name){
+            $directory = $this->getPictureConfiguration()->getDir().$sub_folder_name."/".$image_name;
+        }
+
         $image_thumb_name = $this->getThumb($image_name);
-;
-        list($width, $height) = getimagesize($this->getPictureConfiguration()->getDir().$image_name);
+        list($width, $height) = getimagesize($directory);
 
         $image_p = imagecreatetruecolor($this->getPictureConfiguration()->getThumbWidth(), $this->getPictureConfiguration()->getThumbHeight());
         $this->setTransparency($image_p);
 
 
         $image_creator = new ImageCreator($mime_type);
-        $image = $image_creator->createImageByPath($this->getPictureConfiguration()->getDir().$image_name);
+        $image = $image_creator->createImageByPath($directory);
+        
 
         imagecopyresampled($image_p, $image, 0, 0, 0, 0, $this->getPictureConfiguration()->getThumbWidth(), $this->getPictureConfiguration()->getThumbHeight(), $width, $height);
 
-        $this->savePicture($mime_type, $image_p, $image_thumb_name);
+        $this->savePicture($mime_type, $image_p, $image_thumb_name, $sub_folder_name);
     }
 
     /**
      * Gera uma imagem quadrada para a imagem.
      */
-    public function createSquare($image_name, $mime_type){
+    public function createSquare($image_name, $mime_type, $sub_folder_name = false){
 
         if(empty($this->getPicture()->getPhoto())){
 
@@ -428,7 +477,7 @@ class GeneratorImageSDK{
         $image_square_name = $this->getSquare($image_name);
         $photo = $this->automaticResize($this->getPictureConfiguration()->getSquareWidth(), $this->getPictureConfiguration()->getSquareHeight());
         
-        $this->savePicture($mime_type, $photo['picture'], $image_square_name);  
+        $this->savePicture($mime_type, $photo['picture'], $image_square_name, $sub_folder_name); 
     }
 
     /**
