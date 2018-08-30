@@ -257,6 +257,7 @@ class GeneratorImageSDK{
             throw new ImageNotGenerate();
         }
         
+
         $this->createDirectory($this->getPictureConfiguration()->getDir());
         if($has_sub_folder = $this->getPictureConfiguration()->getHasSubFolder()){
             if(!empty($sub_folder_name)){
@@ -279,6 +280,7 @@ class GeneratorImageSDK{
         }else{
             $image_creator->createImageByPhoto($photo, $this->getPictureConfiguration()->getDir().$image_name);
         }
+
     }
 
     /**
