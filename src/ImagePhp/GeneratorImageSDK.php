@@ -297,14 +297,6 @@ class GeneratorImageSDK{
     /**
      * Recupera uma imagem - Base url é unica para cada configuração
      */    
-    public function getImage($image){
-
-        return $this->getPictureConfiguration()->getUrl().$image;
-    }
-
-    /**
-     * Recupera uma imagem - Base url é unica para cada configuração
-     */    
     public function getImageDefault($image){
 
         return $this->getPictureConfiguration()->getUrlImageDefault().$image;
